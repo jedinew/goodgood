@@ -5,7 +5,7 @@ A DB-less daily uplifting message site. Generates content daily via LLM, stores 
 ## Architecture
 
 - **Generator**: Node.js app that runs daily at 00:00 UTC (via cron/supercronic).
-  - Uses OpenAI or Anthropic to generate a message, translations, and theme.
+  - Uses OpenAI, Anthropic, or Gemini to generate a message, translations, and theme.
   - Writes to `./data/daily/YYYY-MM-DD.json`.
   - Updates `./data/index.json` and `./data/latest.json`.
   - Idempotent: Does not overwrite existing files unless forced.
@@ -48,8 +48,8 @@ A DB-less daily uplifting message site. Generates content daily via LLM, stores 
 1.  Create a **Docker Compose** application in Coolify.
 2.  Paste the contents of `docker-compose.yml`.
 3.  Add Environment Variables:
-    - `LLM_PROVIDER` (openai or anthropic)
-    - `OPENAI_API_KEY` or `ANTHROPIC_API_KEY`
+    - `LLM_PROVIDER` (openai, anthropic, or gemini)
+    - `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, or `GEMINI_API_KEY`
 4.  **Important**: Ensure the `./data` volume is persistent. In Coolify, you might need to configure the volume storage specifically if not using local binds.
 5.  **Reverse Proxy**: Connect Nginx Proxy Manager (NPM) or Coolify's proxy to the `web` container on port 3000.
     - Domain: `goodgood.today`

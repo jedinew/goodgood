@@ -28,6 +28,8 @@ export async function generateContent(provider, model, dateStr) {
     return callOpenAI(model || 'gpt-4o', prompt);
   } else if (provider === 'anthropic') {
     return callAnthropic(model || 'claude-3-5-sonnet-20241022', prompt);
+  } else if (provider === 'gemini') {
+    return callGemini(model || 'gemini-1.5-flash', prompt);
   } else {
     throw new Error(`Unknown provider: ${provider}`);
   }
@@ -95,5 +97,43 @@ async function callAnthropic(model, prompt) {
   return {
     content: data.content[0].text,
     model: data.model
+  };
+}
+
+async function callGemini(model, prompt) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("GEMINI_API_KEY is missing");
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      contents: [{
+        parts: [{ text: prompt }]
+      }],
+      systemInstruction: {
+        parts: [{ text: SYSTEM_PROMPT }]
+      }
+    })
+  });
+
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Gemini API error: ${response.status} ${err}`);
+  }
+
+  const data = await response.json();
+  // Gemini structure: candidates[0].content.parts[0].text
+  if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+    throw new Error("Gemini response missing candidates/content");
+  }
+
+  return {
+    content: data.candidates[0].content.parts[0].text,
+    model: model // Gemini API doesn't always echo back the exact model version in the same way, so return requested
   };
 }
