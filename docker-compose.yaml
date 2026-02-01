@@ -1,13 +1,17 @@
 services:
   web:
-    build: ./web-server
+    build:
+      context: .
+      dockerfile: web-server/Dockerfile
     container_name: goodgood-web
     restart: unless-stopped
     ports:
       - "3000:3000"
     volumes:
       - ./data:/data:ro
-      - ./web:/app/public:ro
+      # Removed local web bind mount to rely on image content by default for prod stability
+      # You can uncomment this for local development if you want hot-reloading:
+      # - ./web:/app/public:ro
     environment:
       - PORT=3000
     depends_on:
