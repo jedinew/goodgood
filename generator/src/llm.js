@@ -25,11 +25,11 @@ export async function generateContent(provider, model, dateStr) {
   const prompt = `Generate the daily message for ${dateStr}.`;
 
   if (provider === 'openai') {
-    return callOpenAI(model || 'gpt-4o', prompt);
+    return callOpenAI(model || 'gpt-5.2', prompt);
   } else if (provider === 'anthropic') {
-    return callAnthropic(model || 'claude-3-5-sonnet-20241022', prompt);
+    return callAnthropic(model || 'claude-sonnet-4-5', prompt);
   } else if (provider === 'gemini') {
-    return callGemini(model || 'gemini-1.5-flash', prompt);
+    return callGemini(model || 'gemini-2.0-flash', prompt);
   } else {
     throw new Error(`Unknown provider: ${provider}`);
   }
