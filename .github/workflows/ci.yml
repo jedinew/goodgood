@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+        
+    - name: Check generator scripts
+      run: |
+        cd generator
+        if [ -f package.json ]; then npm install && npm test; fi
+        
+    - name: Check web-server
+      run: |
+        cd web-server
+        if [ -f package.json ]; then npm install; fi

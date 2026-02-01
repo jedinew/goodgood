@@ -1,0 +1,11 @@
+node_modules/
+.env
+.DS_Store
+data/daily/*.json
+data/index.json
+data/latest.json
+!data/.gitkeep
+logs/
+coverage/
+dist/
+.vscode/

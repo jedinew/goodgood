@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": {
+      "git": ["status", "diff", "add", "commit", "push", "log", "config"],
+      "filesystem": ["read", "write", "mkdir", "ls", "rm"]
+    },
+    "deny": {
+      "git": ["push --force", "push --force-with-lease", "reset --hard"],
+      "filesystem": ["rm -rf /", "rm -rf *"]
+    }
+  }
+}
