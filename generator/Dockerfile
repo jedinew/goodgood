@@ -20,6 +20,6 @@ COPY src ./src
 COPY cron/crontab ./crontab
 COPY scripts ./scripts
 
-RUN chmod +x scripts/run-once.sh
+RUN chmod +x scripts/run-once.sh scripts/entrypoint.sh
 
-CMD ["supercronic", "/app/crontab"]
+CMD ["/app/scripts/entrypoint.sh"]
