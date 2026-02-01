@@ -1,0 +1,99 @@
+import { LANGUAGES } from './validation.js';
+
+const SYSTEM_PROMPT = `You are a helpful assistant that generates uplifting, culture-neutral daily messages.
+You must output strictly valid JSON.
+The schema is:
+{
+  "message": "The uplifting message in English",
+  "translations": {
+    "en": "...",
+    "es": "...",
+    ... (all 20 languages)
+  },
+  "theme": {
+    "bg": "#RRGGBB",
+    "fg": "#RRGGBB",
+    "accent": "#RRGGBB"
+  }
+}
+The 20 languages are: ${LANGUAGES.join(', ')}.
+The theme should be pleasing and vary daily.
+Do not include any text outside the JSON.
+`;
+
+export async function generateContent(provider, model, dateStr) {
+  const prompt = `Generate the daily message for ${dateStr}.`;
+
+  if (provider === 'openai') {
+    return callOpenAI(model || 'gpt-4o', prompt);
+  } else if (provider === 'anthropic') {
+    return callAnthropic(model || 'claude-3-5-sonnet-20241022', prompt);
+  } else {
+    throw new Error(`Unknown provider: ${provider}`);
+  }
+}
+
+async function callOpenAI(model, prompt) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) throw new Error("OPENAI_API_KEY is missing");
+
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: model,
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: prompt }
+      ],
+      temperature: 0.7
+    })
+  });
+
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`OpenAI API error: ${response.status} ${err}`);
+  }
+
+  const data = await response.json();
+  return {
+    content: data.choices[0].message.content,
+    model: data.model
+  };
+}
+
+async function callAnthropic(model, prompt) {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) throw new Error("ANTHROPIC_API_KEY is missing");
+
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify({
+      model: model,
+      max_tokens: 4000,
+      system: SYSTEM_PROMPT,
+      messages: [
+        { role: 'user', content: prompt }
+      ]
+    })
+  });
+
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`Anthropic API error: ${response.status} ${err}`);
+  }
+
+  const data = await response.json();
+  return {
+    content: data.content[0].text,
+    model: data.model
+  };
+}
