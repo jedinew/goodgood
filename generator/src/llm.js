@@ -29,7 +29,7 @@ export async function generateContent(provider, model, dateStr) {
   } else if (provider === 'anthropic') {
     return callAnthropic(model || 'claude-sonnet-4-5', prompt);
   } else if (provider === 'gemini') {
-    return callGemini(model || 'gemini-2.5-flash', prompt);
+    return callGemini(model || 'gemini-3-pro-preview', prompt);
   } else {
     throw new Error(`Unknown provider: ${provider}`);
   }
